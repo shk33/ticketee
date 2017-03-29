@@ -1,31 +1,14 @@
 require "rails_helper"
 
-RSpec.feature "User can create new projects" do
+RSpec.feature "User can view projects" do
+	let(:project) { FactoryGirl.create(:project, name: "Internet Explorer") } 
 
 	before do
-		visit "/"
-		click_link "New Project"
+		visit project_url(project)
 	end
 
-	scenario "with valid attributes" do
-		fill_in "Name", with: "Sublime Text 3"
-		fill_in "Description", with: "A good code editor"
-		click_button "Create Project"
-
-		expect(page).to  have_content "Project has been created"
-
-		project = Project.find_by(name: "Sublime Text 3")
-		expect(page.current_url).to eq project_url(project)
-
-		title = "Sublime Text 3 - Projects - Ticketee"
-		expect(page).to have_title title
-
-	end
-
-	scenario "when providing invalid attributes" do
-		click_button "Create Project"
-
-		expect(page).to have_content "Project has not been created."
-		expect(page).to have_content "Name can't be blank"
+	scenario "specific project" do
+		expect(page).to have_content project.name
+		expect(page).to have_content project.description
 	end
 end
