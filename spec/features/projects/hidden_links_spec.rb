@@ -6,10 +6,10 @@ RSpec.feature "User can only see the appropiate links" do
 	let(:project) { FactoryGirl.create :project }
 
 	context "non-admin users (project viewers)" do
-		before do 
+		before do
 			login_as(user)
 			assign_role!(user, :viewer, project)
-		end 
+		end
 
 		scenario "cannot see the New Project link" do
 			visit "/"
@@ -18,22 +18,32 @@ RSpec.feature "User can only see the appropiate links" do
 
 		scenario "cannot see the Delete project link" do
 			visit project_path project
-			expect(page).not_to have_link "Delete Project"
-		end
+      expect(page).not_to have_link "Delete Project"
+    end
 
-	end
+    scenario "cannot see the edit Project link" do
+      visit project_path project
+			expect(page).not_to have_link "Edit Project"
+    end
 
-	context "admin users" do
-		before { login_as(admin) }
-		scenario "can see the New Project link" do
-			visit "/"
-			expect(page).to have_link "New Project"
-		end
+  end
 
-		scenario "can see the Delete project link" do
-			visit project_path project
+  context "admin users" do
+    before { login_as(admin) }
+    scenario "can see the New Project link" do
+      visit "/"
+      expect(page).to have_link "New Project"
+    end
+
+    scenario "can see the Delete project link" do
+      visit project_path project
 			expect(page).to have_link "Delete Project"
 		end
+
+    scenario "can see the edit Project link" do
+      visit project_path project
+      expect(page).to have_link "Edit Project"
+    end
 
 	end
 
