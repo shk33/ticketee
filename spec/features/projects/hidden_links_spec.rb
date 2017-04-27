@@ -26,13 +26,24 @@ RSpec.feature "User can only see the appropiate links" do
 			expect(page).not_to have_link "Edit Project"
     end
 
+    scenario "cannot see the New Ticket link" do
+      visit project_path(project)
+      expect(page).not_to have_link "New Ticket"
+    end
+
   end
 
   context "admin users" do
     before { login_as(admin) }
+
     scenario "can see the New Project link" do
       visit "/"
       expect(page).to have_link "New Project"
+    end
+
+    scenario "can see the New Ticket link" do
+      visit project_path(project)
+      expect(page).to have_link "New Ticket"
     end
 
     scenario "can see the Delete project link" do
