@@ -1,5 +1,6 @@
 class Admin::UsersController < Admin::ApplicationController
   before_action :set_user, only: [:show, :edit, :update, :archive, :destroy]
+  before_action :set_project, only: [:new, :create, :edit, :update]
 
   def index
   	@users = User.excluding_archived.order(:email)
@@ -16,7 +17,7 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def archive
-    if @user == current_user 
+    if @user == current_user
       flash[:alert] = "You cannot archive yourself."
     else
       @user.archive
@@ -31,13 +32,25 @@ class Admin::UsersController < Admin::ApplicationController
       params[:user].delete :password
     end
 
-    if @user.update user_params
-      flash[:notice] = "User has been updated."
-      redirect_to admin_users_url
-    else
-      flash.now[:alert] = "User has not been updated."
-      render "edit"
-    end  
+    User.transaction do
+      @user.roles.clear
+      role_data = params.fetch(:roles, [])
+      role_data.each do |project_id, role_name|
+        if role_name.present?
+          @user.roles.build(project_id: project_id, role: role_name)
+        end
+      end
+
+      if @user.update user_params
+        flash[:notice] = "User has been updated."
+        redirect_to admin_users_url
+      else
+        flash.now[:alert] = "User has not been updated."
+        render "edit"
+        raise ActiveRecord::Rollback
+      end
+    end
+
   end
 
   def create
@@ -45,21 +58,25 @@ class Admin::UsersController < Admin::ApplicationController
 
   	if @user.save
   		flash[:notice] = "User has been created."
-      redirect_to admin_users_path  		
+      redirect_to admin_users_path
     else
       flash.now[:alert] = "User has not been created."
       render "new"
   	end
   end
 
-  private 
-  
+  private
+
     def user_params
       params.require(:user).permit(:email, :password, :admin)
     end
 
-    def set_user 
+    def set_user
       @user = User.find params[:id]
+    end
+
+    def set_project
+      @projects = Project.order(:name)
     end
 
 end
