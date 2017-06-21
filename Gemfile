@@ -19,6 +19,8 @@ gem 'devise'
 
 #Autorization
 gem "pundit", "~> 0.3.0"
+#File Upload
+gem "carrierwave", "~> 0.10.0"
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'

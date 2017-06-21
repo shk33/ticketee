@@ -11,3 +11,5 @@
 /log/*
 !/log/.keep
 /tmp
+# File uploading
+/public/uploads
